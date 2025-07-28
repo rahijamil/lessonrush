@@ -1,103 +1,612 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import type React from "react";
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Rocket,
+  Clock,
+  DollarSign,
+  Users,
+  Check,
+  Zap,
+  Target,
+  Mail,
+  MessageSquare,
+  Sparkles,
+  Play,
+  CreditCard,
+  BarChart3,
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+
+const LessonRushLanding = () => {
+  const [email, setEmail] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [painPoints, setPainPoints] = useState<string[]>([]);
+  const [showPainSolution, setShowPainSolution] = useState(false);
+
+  // Pain points for course creators (Problem-Agitation-Solution)
+  const creatorPainPoints = [
+    {
+      pain: "I spend weeks setting up my course platform instead of creating content",
+      solution:
+        "Launch-ready course platform in under 5 minutes with zero technical setup",
+      icon: <Clock className="h-5 w-5 text-chart-2" />,
+    },
+    {
+      pain: "Technical setup costs eat into my course profits",
+      solution:
+        "All-in-one solution that eliminates expensive developers and monthly tool subscriptions",
+      icon: <DollarSign className="h-5 w-5 text-chart-5" />,
+    },
+    {
+      pain: "I lose students during complicated enrollment processes",
+      solution:
+        "Streamlined, conversion-optimized enrollment that maximizes student sign-ups",
+      icon: <Users className="h-5 w-5 text-chart-4" />,
+    },
+    {
+      pain: "Managing payments, emails, and content delivery is overwhelming",
+      solution:
+        "Automated systems handle everything while you focus on teaching and growing",
+      icon: <Target className="h-5 w-5 text-chart-3" />,
+    },
+  ];
+
+  // Core MVP features
+  const coreFeatures = [
+    {
+      title: "5-Minute Course Setup",
+      description:
+        "Upload content, set pricing, go live. No coding, no complicated configurations.",
+      icon: <Zap className="h-6 w-6 text-chart-1" />,
+      status: "planned",
+    },
+    {
+      title: "Built-in Payment Processing",
+      description:
+        "Secure payments, automatic tax handling, instant payouts to your account.",
+      icon: <CreditCard className="h-6 w-6 text-chart-5" />,
+      status: "planned",
+    },
+    {
+      title: "Student Progress Tracking",
+      description:
+        "Quizzes, certificates, progress tracking that boost completion rates.",
+      icon: <BarChart3 className="h-6 w-6 text-chart-4" />,
+      status: "planned",
+    },
+    {
+      title: "Content Drip System",
+      description:
+        "Automatically release lessons to keep students engaged and coming back.",
+      icon: <Play className="h-6 w-6 text-chart-3" />,
+      status: "planned",
+    },
+  ];
+
+  // Handle form submission
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!email) return;
+
+    setIsSubmitting(true);
+
+    // Simulate API call - replace with your actual endpoint
+    try {
+      // await fetch('/api/waitlist', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ email, feedback, painPoints })
+      // });
+
+      // Simulate delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setIsSubmitted(true);
+      setEmail("");
+      setFeedback("");
+      setPainPoints([]);
+    } catch (error) {
+      console.error("Submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle button click
+  const handleButtonClick = async () => {
+    if (!email) return;
+
+    setIsSubmitting(true);
+
+    // Simulate API call - replace with your actual endpoint
+    try {
+      // await fetch('/api/waitlist', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ email, feedback, painPoints })
+      // });
+
+      // Simulate delay
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setIsSubmitted(true);
+      setEmail("");
+      setFeedback("");
+      setPainPoints([]);
+    } catch (error) {
+      console.error("Submission error:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle pain point selection
+  const togglePainPoint = (pain: string) => {
+    if (painPoints.includes(pain)) {
+      setPainPoints(painPoints.filter((p) => p !== pain));
+    } else {
+      setPainPoints([...painPoints, pain]);
+    }
+  };
+
+  // Show solution after selecting pain points
+  useEffect(() => {
+    if (painPoints.length > 0 && !showPainSolution) {
+      const timer = setTimeout(() => setShowPainSolution(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [painPoints, showPainSolution]);
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-chart-1/5">
+      {/* Header */}
+      <header className="relative z-50 bg-background/80 backdrop-blur-md border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-gradient-to-r from-chart-1 to-chart-4 rounded-lg flex items-center justify-center">
+                <Rocket className="h-6 w-6 text-white" />
+              </div>
+              <span className="text-2xl font-bold bg-gradient-to-r from-chart-1 to-chart-4 bg-clip-text text-transparent">
+                LessonRush
+              </span>
+            </div>
+            <Badge
+              variant="secondary"
+              className="bg-chart-1/10 text-chart-1 border-chart-1/20"
+            >
+              Coming Soon
+            </Badge>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative py-20 overflow-hidden">
+        {/* Background Elements */}
+        <div className="absolute inset-0">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-chart-1/10 rounded-full blur-3xl animate-pulse"></div>
+          <div
+            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-chart-4/10 rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: "2s" }}
+          ></div>
+        </div>
+
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          {/* Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="inline-flex items-center gap-2 bg-chart-1/10 px-4 py-2 rounded-full text-sm font-medium text-chart-1 mb-6 border border-chart-1/20"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span>Building the future of online course creation</span>
+          </motion.div>
+
+          {/* Main Headline */}
+          <motion.h1
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6"
+          >
+            <span className="bg-gradient-to-r from-chart-1 via-chart-4 to-chart-1 bg-clip-text text-transparent">
+              Launch Your Course Business
+            </span>
+            <br />
+            <span className="text-foreground">in Minutes, Not Months</span>
+          </motion.h1>
+
+          {/* Subtitle */}
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto mb-12 leading-relaxed"
+          >
+            We're building the simplest way to create, launch, and scale your
+            online course. No technical skills required. No expensive setup
+            costs. Just your expertise and our platform.
+          </motion.p>
+
+          {/* Early Access Form */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="max-w-md mx-auto"
+          >
+            <AnimatePresence mode="wait">
+              {!isSubmitted ? (
+                <motion.div
+                  key="form"
+                  initial={{ opacity: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="space-y-4"
+                >
+                  <div className="flex gap-2">
+                    <Input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email for early access"
+                      className="flex-1 h-12 text-base border-chart-1/20 focus:border-chart-1 focus:ring-chart-1"
+                      required
+                    />
+                    <Button
+                      type="button"
+                      onClick={handleButtonClick}
+                      disabled={!email || isSubmitting}
+                      className="h-12 px-6 bg-gradient-to-r from-chart-1 to-chart-4 hover:from-chart-1/90 hover:to-chart-4/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                    >
+                      {isSubmitting ? (
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      ) : (
+                        <>Get Early Access</>
+                      )}
+                    </Button>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="success"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-chart-5/10 border border-chart-5/20 rounded-lg p-6 text-center"
+                >
+                  <Check className="h-8 w-8 text-chart-5 mx-auto mb-3" />
+                  <h3 className="font-semibold text-chart-5 mb-2">
+                    You're on the list! 🎉
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    We'll notify you as soon as LessonRush is ready to launch.
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+
+          {/* Trust Signals */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            className="text-sm text-muted-foreground mt-6"
+          >
+            ✅ No spam, ever • ✅ Be the first to know • ✅ Early bird pricing
+          </motion.p>
+        </div>
+      </section>
+
+      {/* Problem Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Are These Course Creation Challenges{" "}
+              <span className="text-chart-1">Slowing You Down?</span>
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              Tell us what you're struggling with:
+            </p>
+          </div>
+
+          <div className="space-y-4 mb-8">
+            {creatorPainPoints.map((point, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                onClick={() => togglePainPoint(point.pain)}
+                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                  painPoints.includes(point.pain)
+                    ? "border-chart-1 bg-chart-1/5"
+                    : "border-border hover:border-chart-1/50 bg-card"
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center mt-0.5 ${
+                      painPoints.includes(point.pain)
+                        ? "bg-chart-1 border-chart-1"
+                        : "border-muted-foreground"
+                    }`}
+                  >
+                    {painPoints.includes(point.pain) && (
+                      <Check className="h-3 w-3 text-white" />
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <span
+                      className={`text-lg ${
+                        painPoints.includes(point.pain) ? "font-semibold" : ""
+                      }`}
+                    >
+                      {point.pain}
+                    </span>
+                  </div>
+                  <div className="flex-shrink-0">{point.icon}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Solutions appear after selection */}
+          <AnimatePresence>
+            {painPoints.length > 0 && showPainSolution && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="bg-gradient-to-r from-chart-1/10 to-chart-4/10 rounded-xl p-6 border border-chart-1/20"
+              >
+                <h3 className="text-2xl font-bold text-center mb-6 text-chart-1">
+                  LessonRush Will Solve These Exact Problems:
+                </h3>
+                <div className="space-y-4">
+                  {creatorPainPoints
+                    .filter((p) => painPoints.includes(p.pain))
+                    .map((point, index) => (
+                      <div key={index} className="flex items-start gap-3">
+                        <Target className="h-5 w-5 text-chart-1 mt-1 flex-shrink-0" />
+                        <div>
+                          <p className="font-semibold text-chart-1">
+                            {point.pain}
+                          </p>
+                          <p className="text-muted-foreground mt-1">
+                            ✅ {point.solution}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-background">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              What We're Building for <span className="text-chart-1">You</span>
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              The core features that will make course creation effortless
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {coreFeatures.map((feature, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="group"
+              >
+                <Card className="p-6 h-full border-border hover:border-chart-1/50 transition-all duration-300 hover:shadow-lg">
+                  <CardContent className="p-0">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="w-12 h-12 bg-chart-1/10 rounded-lg flex items-center justify-center group-hover:bg-chart-1/20 transition-colors">
+                          {feature.icon}
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="text-xl font-semibold text-foreground">
+                            {feature.title}
+                          </h3>
+                          <Badge
+                            variant="outline"
+                            className="text-xs text-chart-1 border-chart-1/30"
+                          >
+                            Planned
+                          </Badge>
+                        </div>
+                        <p className="text-muted-foreground leading-relaxed">
+                          {feature.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Feedback Section */}
+      <section className="py-20 bg-muted/30">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Help Us Build <span className="text-chart-1">Exactly</span> What
+              You Need
+            </h2>
+            <p className="text-xl text-muted-foreground">
+              What features would make your course creation journey easier?
+            </p>
+          </div>
+
+          <Card className="p-8 border-chart-1/20">
+            <CardContent className="p-0">
+              <form onSubmit={handleFormSubmit} className="space-y-6">
+                <div>
+                  <label
+                    htmlFor="email-feedback"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
+                    Email Address *
+                  </label>
+                  <Input
+                    id="email-feedback"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="h-12 border-chart-1/20 focus:border-chart-1 focus:ring-chart-1"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="feedback"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
+                    What features do you need most? What problems should we
+                    solve first?
+                  </label>
+                  <Textarea
+                    id="feedback"
+                    value={feedback}
+                    onChange={(e) => setFeedback(e.target.value)}
+                    placeholder="Tell us about your course creation challenges, feature requests, or what would make this platform perfect for you..."
+                    className="min-h-[120px] border-chart-1/20 focus:border-chart-1 focus:ring-chart-1 resize-none"
+                    rows={5}
+                  />
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={!email || isSubmitting}
+                  className="w-full h-12 bg-gradient-to-r from-chart-1 to-chart-4 hover:from-chart-1/90 hover:to-chart-4/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                >
+                  {isSubmitting ? (
+                    <div className="flex items-center gap-2">
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      Submitting...
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <MessageSquare className="h-5 w-5" />
+                      Join Waitlist & Share Feedback
+                    </div>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="py-20 bg-gradient-to-r from-chart-1 to-chart-4 text-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6">
+            Be Among the First to Experience LessonRush
+          </h2>
+          <p className="text-xl mb-8 opacity-90">
+            Join our waitlist and get exclusive early access, special pricing,
+            and the chance to shape the product.
+          </p>
+
+          <div className="flex flex-wrap justify-center gap-8 text-sm opacity-90 mb-8">
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4" />
+              <span>Early bird pricing</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4" />
+              <span>Beta access</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4" />
+              <span>Shape the product</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Check className="h-4 w-4" />
+              <span>No spam, ever</span>
+            </div>
+          </div>
+
+          <Button
+            onClick={() =>
+              document
+                .getElementById("email-feedback")
+                ?.scrollIntoView({ behavior: "smooth" })
+            }
+            size="lg"
+            className="bg-white text-chart-1 hover:bg-white/90 px-8 py-4 text-lg font-semibold shadow-lg hover:shadow-xl transition-all"
+          >
+            <Mail className="mr-2 h-5 w-5" />
+            Join the Waitlist
+          </Button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-background border-t py-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center space-x-2 mb-4 md:mb-0">
+              <div className="w-8 h-8 bg-gradient-to-r from-chart-1 to-chart-4 rounded-lg flex items-center justify-center">
+                <Rocket className="h-4 w-4 text-white" />
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-chart-1 to-chart-4 bg-clip-text text-transparent">
+                LessonRush
+              </span>
+            </div>
+
+            <div className="flex space-x-6 text-sm text-muted-foreground">
+              <a href="#" className="hover:text-foreground transition-colors">
+                Privacy
+              </a>
+              <a href="#" className="hover:text-foreground transition-colors">
+                Terms
+              </a>
+              <a
+                href="mailto:hello@lessonrush.com"
+                className="hover:text-foreground transition-colors"
+              >
+                Contact
+              </a>
+            </div>
+          </div>
+
+          <div className="border-t border-border mt-8 pt-8 text-center text-muted-foreground text-sm">
+            © 2025 LessonRush. Building the future of online course creation.
+          </div>
+        </div>
       </footer>
     </div>
   );
-}
+};
+
+export default LessonRushLanding;
