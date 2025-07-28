@@ -1,7 +1,5 @@
 "use client";
 
-import type React from "react";
-
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,14 +22,42 @@ import {
   BarChart3,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const waitlistFormSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  feedback: z.string().optional(),
+});
 
 const LessonRushLanding = () => {
-  const [email, setEmail] = useState("");
-  const [feedback, setFeedback] = useState("");
+  const [mounted, setMounted] = useState(false);
+  const form = useForm<z.infer<typeof waitlistFormSchema>>({
+    resolver: zodResolver(waitlistFormSchema),
+    defaultValues: {
+      email: "",
+      feedback: "",
+    },
+  });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false); // Add this line
   const [painPoints, setPainPoints] = useState<string[]>([]);
   const [showPainSolution, setShowPainSolution] = useState(false);
+
+  // Ensure component is mounted before showing animations
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Pain points for course creators (Problem-Agitation-Solution)
   const creatorPainPoints = [
@@ -93,61 +119,58 @@ const LessonRushLanding = () => {
     },
   ];
 
-  // Handle form submission
-  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!email) return;
-
-    setIsSubmitting(true);
-
-    // Simulate API call - replace with your actual endpoint
+  const submitToWaitlist = async (
+    values: z.infer<typeof waitlistFormSchema>
+  ) => {
     try {
-      // await fetch('/api/waitlist', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, feedback, painPoints })
-      // });
+      const res = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: values.email,
+          feedback: values.feedback,
+          painPoints,
+        }),
+      });
 
-      // Simulate delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const result = await res.json();
 
-      setIsSubmitted(true);
-      setEmail("");
-      setFeedback("");
+      if (!res.ok) {
+        console.error("API error:", result.message);
+        return alert(result.message || "Something went wrong");
+      }
+
+      // Set success state based on whether feedback was provided
+      if (values.feedback && values.feedback.trim()) {
+        setFeedbackSubmitted(true);
+      } else {
+        setIsSubmitted(true);
+      }
+
+      form.reset();
       setPainPoints([]);
-    } catch (error) {
-      console.error("Submission error:", error);
+    } catch (err) {
+      console.error("Unexpected error:", err);
+      alert("Network or server error");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // Handle button click
-  const handleButtonClick = async () => {
-    if (!email) return;
-
+  const handleFormSubmit = async (
+    values: z.infer<typeof waitlistFormSchema>
+  ) => {
     setIsSubmitting(true);
+    await submitToWaitlist(values);
+  };
 
-    // Simulate API call - replace with your actual endpoint
-    try {
-      // await fetch('/api/waitlist', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ email, feedback, painPoints })
-      // });
+  const handleButtonClick = async () => {
+    const isValid = await form.trigger("email");
+    if (!isValid) return;
 
-      // Simulate delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      setIsSubmitted(true);
-      setEmail("");
-      setFeedback("");
-      setPainPoints([]);
-    } catch (error) {
-      console.error("Submission error:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
+    const values = form.getValues();
+    setIsSubmitting(true);
+    await submitToWaitlist(values);
   };
 
   // Handle pain point selection
@@ -166,6 +189,46 @@ const LessonRushLanding = () => {
       return () => clearTimeout(timer);
     }
   }, [painPoints, showPainSolution]);
+
+  // Don't render animations until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-chart-1/5">
+        {/* Header */}
+        <header className="relative z-50 bg-background/80 backdrop-blur-md border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center space-x-2">
+                <div className="w-10 h-10 bg-gradient-to-r from-chart-1 to-chart-4 rounded-lg flex items-center justify-center">
+                  <Rocket className="h-6 w-6 text-white" />
+                </div>
+                <span className="text-2xl font-bold bg-gradient-to-r from-chart-1 to-chart-4 bg-clip-text text-transparent">
+                  LessonRush
+                </span>
+              </div>
+              <Badge
+                variant="secondary"
+                className="bg-chart-1/10 text-chart-1 border-chart-1/20"
+              >
+                Coming Soon
+              </Badge>
+            </div>
+          </div>
+        </header>
+
+        {/* Loading state */}
+        <section className="relative py-20 overflow-hidden">
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+            <div className="animate-pulse">
+              <div className="h-8 bg-chart-1/10 rounded-full w-64 mx-auto mb-6"></div>
+              <div className="h-16 bg-foreground/10 rounded-lg w-full max-w-3xl mx-auto mb-6"></div>
+              <div className="h-6 bg-muted-foreground/10 rounded w-full max-w-2xl mx-auto mb-12"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-chart-1/5">
@@ -195,11 +258,8 @@ const LessonRushLanding = () => {
       <section className="relative py-20 overflow-hidden">
         {/* Background Elements */}
         <div className="absolute inset-0">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-chart-1/10 rounded-full blur-3xl animate-pulse"></div>
-          <div
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-chart-4/10 rounded-full blur-3xl animate-pulse"
-            style={{ animationDelay: "2s" }}
-          ></div>
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-chart-1/10 rounded-full blur-3xl"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-chart-4/10 rounded-full blur-3xl"></div>
         </div>
 
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
@@ -254,28 +314,47 @@ const LessonRushLanding = () => {
                   exit={{ opacity: 0, scale: 0.95 }}
                   className="space-y-4"
                 >
-                  <div className="flex gap-2">
-                    <Input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email for early access"
-                      className="flex-1 h-12 text-base border-chart-1/20 focus:border-chart-1 focus:ring-chart-1"
-                      required
-                    />
-                    <Button
-                      type="button"
-                      onClick={handleButtonClick}
-                      disabled={!email || isSubmitting}
-                      className="h-12 px-6 bg-gradient-to-r from-chart-1 to-chart-4 hover:from-chart-1/90 hover:to-chart-4/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
-                    >
-                      {isSubmitting ? (
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      ) : (
-                        <>Get Early Access</>
+                  <Form {...form}>
+                    <div className="flex gap-2">
+                      <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem className="flex-1">
+                            <FormControl>
+                              <Input
+                                {...field}
+                                type="email"
+                                placeholder="Enter your email for early access"
+                                className="h-12 text-base border-chart-1/20 focus:border-chart-1 focus:ring-chart-1"
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleButtonClick}
+                        disabled={isSubmitting}
+                        className="h-12 px-6 bg-gradient-to-r from-chart-1 to-chart-4 hover:from-chart-1/90 hover:to-chart-4/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                      >
+                        {isSubmitting ? (
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        ) : (
+                          <>Get Early Access</>
+                        )}
+                      </Button>
+                    </div>
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={() => (
+                        <FormItem>
+                          <FormMessage className="text-center mt-2" />
+                        </FormItem>
                       )}
-                    </Button>
-                  </div>
+                    />
+                  </Form>
                 </motion.div>
               ) : (
                 <motion.div
@@ -452,7 +531,7 @@ const LessonRushLanding = () => {
       </section>
 
       {/* Feedback Section */}
-      <section className="py-20 bg-muted/30">
+      <section className="py-20 bg-muted/30" id="feedback-section">
         <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -466,61 +545,113 @@ const LessonRushLanding = () => {
 
           <Card className="p-8 border-chart-1/20">
             <CardContent className="p-0">
-              <form onSubmit={handleFormSubmit} className="space-y-6">
-                <div>
-                  <label
-                    htmlFor="email-feedback"
-                    className="block text-sm font-medium text-foreground mb-2"
+              <AnimatePresence mode="wait">
+                {!feedbackSubmitted ? (
+                  <motion.div
+                    key="feedback-form"
+                    initial={{ opacity: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
                   >
-                    Email Address *
-                  </label>
-                  <Input
-                    id="email-feedback"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                    className="h-12 border-chart-1/20 focus:border-chart-1 focus:ring-chart-1"
-                    required
-                  />
-                </div>
+                    <Form {...form}>
+                      <form
+                        onSubmit={form.handleSubmit(handleFormSubmit)}
+                        className="space-y-6"
+                      >
+                        <FormField
+                          control={form.control}
+                          name="email"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground">
+                                Email Address *
+                              </FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  type="email"
+                                  placeholder="your@email.com"
+                                  className="h-12 border-chart-1/20 focus:border-chart-1 focus:ring-chart-1"
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                <div>
-                  <label
-                    htmlFor="feedback"
-                    className="block text-sm font-medium text-foreground mb-2"
+                        <FormField
+                          control={form.control}
+                          name="feedback"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-sm font-medium text-foreground">
+                                What features do you need most? What problems
+                                should we solve first?
+                              </FormLabel>
+                              <FormControl>
+                                <Textarea
+                                  {...field}
+                                  placeholder="Tell us about your course creation challenges, feature requests, or what would make this platform perfect for you..."
+                                  className="min-h-[120px] border-chart-1/20 focus:border-chart-1 focus:ring-chart-1 resize-none"
+                                  rows={5}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <Button
+                          type="submit"
+                          disabled={isSubmitting}
+                          className="w-full h-12 bg-gradient-to-r from-chart-1 to-chart-4 hover:from-chart-1/90 hover:to-chart-4/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
+                        >
+                          {isSubmitting ? (
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                              Submitting...
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <MessageSquare className="h-5 w-5" />
+                              Join Waitlist & Share Feedback
+                            </div>
+                          )}
+                        </Button>
+                      </form>
+                    </Form>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="feedback-success"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="bg-chart-5/10 border border-chart-5/20 rounded-lg p-8 text-center"
                   >
-                    What features do you need most? What problems should we
-                    solve first?
-                  </label>
-                  <Textarea
-                    id="feedback"
-                    value={feedback}
-                    onChange={(e) => setFeedback(e.target.value)}
-                    placeholder="Tell us about your course creation challenges, feature requests, or what would make this platform perfect for you..."
-                    className="min-h-[120px] border-chart-1/20 focus:border-chart-1 focus:ring-chart-1 resize-none"
-                    rows={5}
-                  />
-                </div>
-
-                <Button
-                  type="submit"
-                  disabled={!email || isSubmitting}
-                  className="w-full h-12 bg-gradient-to-r from-chart-1 to-chart-4 hover:from-chart-1/90 hover:to-chart-4/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all"
-                >
-                  {isSubmitting ? (
-                    <div className="flex items-center gap-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Submitting...
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="h-5 w-5" />
-                      Join Waitlist & Share Feedback
-                    </div>
-                  )}
-                </Button>
-              </form>
+                    <Check className="h-12 w-12 text-chart-5 mx-auto mb-4" />
+                    <h3 className="text-2xl font-semibold text-chart-5 mb-3">
+                      Thank you for your feedback! 🎉
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      Your insights are invaluable in helping us build the
+                      perfect course creation platform.
+                    </p>
+                    <p className="text-sm text-muted-foreground">
+                      We've added you to our waitlist and will keep you updated
+                      on our progress.
+                    </p>
+                    <Button
+                      onClick={() => {
+                        setFeedbackSubmitted(false);
+                        form.reset();
+                      }}
+                      variant="outline"
+                      className="mt-4 border-chart-1/30 text-chart-1 hover:bg-chart-1/10"
+                    >
+                      Submit More Feedback
+                    </Button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </CardContent>
           </Card>
         </div>
@@ -559,7 +690,7 @@ const LessonRushLanding = () => {
           <Button
             onClick={() =>
               document
-                .getElementById("email-feedback")
+                .getElementById("feedback-section")
                 ?.scrollIntoView({ behavior: "smooth" })
             }
             size="lg"
